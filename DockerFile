@@ -14,4 +14,4 @@ RUN composer install --no-dev --optimize-autoloader
 
 RUN php artisan key:generate
 
-CMD php artisan queue:work --once --verbose
+# Remove o CMD - deixa o Railway controlar
