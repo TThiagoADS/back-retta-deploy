@@ -1,5 +1,6 @@
 <?php
 
+// Arquivo: app/Application/Jobs/FetchAllDeputiesExpensesJob.php
 namespace App\Application\Jobs;
 
 use Illuminate\Bus\Queueable;
@@ -14,51 +15,46 @@ class FetchAllDeputiesExpensesJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    public $timeout = 3600;
+    public $timeout = 3600; // 1 hora de timeout
     public $tries = 3;
-    public $backoff = 60;
+    public $backoff = 60; // 1 minuto entre tentativas
+
+    // SEM CONSTRUTOR - este job não recebe parâmetros
 
     public function handle(DeputyRepositoryInterface $deputyRepo): void
     {
-        try {
-            $deputies = $deputyRepo->getAll();
+        Log::info('Iniciando busca de despesas de todos os deputados');
 
-            if ($deputies === null) {
-                Log::error('Repository retornou NULL');
-                return;
+        // Busca todos os deputados do banco
+        $deputies = $deputyRepo->getAll();
+
+        Log::info("Encontrados {$deputies->count()} deputados para processar");
+
+        $processed = 0;
+        $errors = 0;
+
+        foreach ($deputies as $deputy) {
+            try {
+                // Despacha um job individual para cada deputado
+                FetchDeputyExpensesJob::dispatch($deputy->id);
+                $processed++;
+
+                Log::info("Job despachado para deputado {$deputy->name} (ID: {$deputy->id})");
+
+                // Pequena pausa para não sobrecarregar a API
+                usleep(100000); // 0.1 segundo
+
+            } catch (\Exception $e) {
+                $errors++;
+                Log::error("Erro ao processar deputado {$deputy->name} (ID: {$deputy->id}): " . $e->getMessage());
             }
-
-            if ($deputies->isEmpty()) {
-                Log::warning('Repository retornou coleção vazia');
-                return;
-            }
-
-            $processed = 0;
-            $errors = 0;
-
-            foreach ($deputies as $deputy) {
-                try {
-
-                    if (!class_exists('App\Application\Jobs\FetchDeputyExpensesJob')) {
-                        Log::error('Classe FetchDeputyExpensesJob não encontrada');
-                        $errors++;
-                        continue;
-                    }
-
-                    FetchDeputyExpensesJob::dispatch($deputy->id);
-                    $processed++;
-
-                    usleep(100000);
-
-                } catch (\Exception $e) {
-                    $errors++;
-                }
-            }
-
-        } catch (\Exception $e) {
-            Log::error("Erro geral no job: " . $e->getMessage());
-            Log::error("Stack trace: " . $e->getTraceAsString());
-            throw $e;
         }
+
+        Log::info("Processamento concluído. Jobs despachados: {$processed}, Erros: {$errors}");
+    }
+
+    public function failed(\Throwable $exception): void
+    {
+        Log::error('Job FetchAllDeputiesExpensesJob falhou: ' . $exception->getMessage());
     }
 }
