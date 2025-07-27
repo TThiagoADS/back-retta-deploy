@@ -1,0 +1,5 @@
+[build]
+builder = "dockerfile"
+
+[deploy]
+startCommand = "php artisan config:clear && php artisan queue:work --verbose --tries=3 --timeout=90"
