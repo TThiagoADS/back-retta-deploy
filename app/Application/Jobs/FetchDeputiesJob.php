@@ -23,7 +23,7 @@ class FetchDeputiesJob implements ShouldQueue
         foreach ($items as $i) {
             $d = new Deputy();
             $d->id              = $i['id'];
-            $d->nome            = $i['nome'];
+            $d->nome            = $i['nome'] ?? '';
             $d->siglaPartido    = $i['siglaPartido'];
             $d->siglaUf         = $i['siglaUf'];
             $d->urlFoto         = $i['urlFoto'] ?? null;
