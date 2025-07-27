@@ -22,12 +22,16 @@ class FetchDeputiesJob implements ShouldQueue
 
         foreach ($items as $i) {
             $d = new Deputy();
-            $d->id          = $i['id'];
-            $d->name        = $i['nome'];
-            $d->party_abbr  = $i['siglaPartido'];
-            $d->state_abbr  = $i['siglaUf'];
-            $d->photo_url   = $i['urlFoto'] ?? null;
-            $d->email       = $i['email']   ?? null;
+            $d->id              = $i['id'];
+            $d->uri             = $i['uri'];
+            $d->name            = $i['nome'];
+            $d->party_abbr      = $i['siglaPartido'];
+            $d->party_uri       = $i['uriPartido'];
+            $d->state_abbr      = $i['siglaUf'];
+            $d->legislature_id  = $i['idLegislatura'];
+            $d->photo_url       = $i['urlFoto'] ?? null;
+            $d->email           = $i['email'] ?? null;
+
             $repo->save($d);
         }
     }

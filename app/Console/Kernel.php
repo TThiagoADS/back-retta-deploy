@@ -6,7 +6,6 @@ use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 use App\Application\Jobs\FetchDeputiesExpensesJob;
 use App\Application\Jobs\FetchDeputyExpensesJob;
-use App\Application\Jobs\FetchAllDeputiesExpensesJob;
 
 class Kernel extends ConsoleKernel
 {
@@ -35,12 +34,6 @@ class Kernel extends ConsoleKernel
                 ->sundays()
                 ->at('01:00')
                 ->name('fetch-deputies')
-                ->withoutOverlapping()
-                ->runInBackground();
-        $schedule->job(new FetchAllDeputiesExpensesJob())
-                ->daily()
-                ->at('02:30')
-                ->name('fetch-all-deputies-expenses')
                 ->withoutOverlapping()
                 ->runInBackground();
 

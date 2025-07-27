@@ -16,6 +16,9 @@ class Deputy extends Model
         'name',
         'party_abbr',
         'state_abbr',
+        'uri',
+        'party_uri',
+        'legislature_id',
         'photo_url',
         'email',
     ];

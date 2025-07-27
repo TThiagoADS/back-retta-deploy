@@ -96,25 +96,26 @@ public function getWithExpenses(): Collection
     }
 
     public function save(Deputy $deputy): void
-    {
-        $model = isset($deputy->id)
-            ? DeputyModel::find($deputy->id) ?? new DeputyModel()
-            : new DeputyModel();
-        $model->name = $deputy->nome;
-        $model->party_abbr = $deputy->siglaPartido;
-        $model->state_abbr = $deputy->siglaUf;
-        $model->uri = $deputy->uri ?? null;
-        $model->party_uri = $deputy->uriPartido ?? null;
-        $model->legislature_id = $deputy->idLegislatura ?? null;
-        $model->photo_url = $deputy->urlFoto ?? null;
-        $model->email = $deputy->email ?? null;
+{
+    $model = isset($deputy->id)
+        ? DeputyModel::find($deputy->id) ?? new DeputyModel()
+        : new DeputyModel();
 
-        $model->save();
+    $model->name = $deputy->name ?? null;
+    $model->party_abbr = $deputy->party_abbr ?? null;
+    $model->state_abbr = $deputy->state_abbr ?? null;
+    $model->uri = $deputy->uri ?? null;
+    $model->party_uri = $deputy->party_uri ?? null;
+    $model->legislature_id = $deputy->legislature_id ?? null;
+    $model->photo_url = $deputy->photo_url ?? null;
+    $model->email = $deputy->email ?? null;
 
-        if (!isset($deputy->id)) {
-            $deputy->id = $model->id;
-        }
+    $model->save();
+
+    if (!isset($deputy->id)) {
+        $deputy->id = $model->id;
     }
+}
 
    public function countDeputiesByParty()
     {
@@ -126,19 +127,19 @@ public function getWithExpenses(): Collection
     }
 
     private function modelToEntity(DeputyModel $model): Deputy
-    {
-        $deputy = new Deputy();
+{
+    $deputy = new Deputy();
 
-        $deputy->id = $model->id;
-        $deputy->uri = $model->uri ?? '';
-        $deputy->nome = $model->name ?? '';
-        $deputy->siglaPartido = $model->party_abbr ?? '';
-        $deputy->uriPartido = $model->party_uri ?? '';
-        $deputy->siglaUf = $model->state_abbr ?? '';
-        $deputy->idLegislatura = $model->legislature_id ?? '';
-        $deputy->urlFoto = $model->photo_url ?? '';
-        $deputy->email = $model->email ?? '';
+    $deputy->id = $model->id;
+    $deputy->uri = $model->uri ?? '';
+    $deputy->name = $model->name ?? '';
+    $deputy->party_abbr = $model->party_abbr ?? '';
+    $deputy->party_uri = $model->party_uri ?? '';
+    $deputy->state_abbr = $model->state_abbr ?? '';
+    $deputy->legislature_id = $model->legislature_id ?? '';
+    $deputy->photo_url = $model->photo_url ?? '';
+    $deputy->email = $model->email ?? '';
 
-        return $deputy;
-    }
+    return $deputy;
+}
 }
