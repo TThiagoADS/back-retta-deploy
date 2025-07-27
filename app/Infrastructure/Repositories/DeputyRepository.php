@@ -95,11 +95,16 @@ public function getWithExpenses(): Collection
         return DeputyModel::whereNotNull('state_abbr')->distinct('state_abbr')->count('state_abbr');
     }
 
-    public function save(Deputy $deputy): void
+
+public function save(Deputy $deputy): void
 {
     $model = isset($deputy->id)
         ? DeputyModel::find($deputy->id) ?? new DeputyModel()
         : new DeputyModel();
+
+    if (isset($deputy->id)) {
+        $model->id = $deputy->id;  // <-- Setando o id manualmente no model
+    }
 
     $model->name = $deputy->name ?? null;
     $model->party_abbr = $deputy->party_abbr ?? null;
@@ -116,6 +121,7 @@ public function getWithExpenses(): Collection
         $deputy->id = $model->id;
     }
 }
+
 
    public function countDeputiesByParty()
     {
