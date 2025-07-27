@@ -14,4 +14,4 @@ RUN composer install --no-dev --optimize-autoloader
 
 RUN php artisan key:generate
 
-# Remove o CMD - deixa o Railway controlar
+CMD php artisan migrate --force && php artisan serve --host=0.0.0.0 --port=8080
