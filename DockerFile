@@ -14,8 +14,4 @@ RUN composer install --no-dev --optimize-autoloader
 
 RUN php artisan key:generate
 
-# Para o worker, não precisamos expor porta
-# EXPOSE 8080
-
-# Worker command - sem migrate pois o serviço web já faz isso
-CMD php artisan queue:work --verbose --tries=3 --timeout=90 --memory=512
+CMD php artisan queue:work --once --verbose
