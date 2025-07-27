@@ -10,6 +10,7 @@ use Illuminate\Queue\SerializesModels;
 use App\Domain\Repositories\DeputyRepositoryInterface;
 use App\Domain\Entities\Deputy;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 
 class FetchDeputiesJob implements ShouldQueue
 {
@@ -17,22 +18,38 @@ class FetchDeputiesJob implements ShouldQueue
 
     public function handle(DeputyRepositoryInterface $repo): void
     {
-        $response = Http::get('https://dadosabertos.camara.leg.br/api/v2/deputados');
-        $items    = $response->json('dados', []);
+        try {
+            $response = Http::get('https://dadosabertos.camara.leg.br/api/v2/deputados');
+            $items = $response->json('dados', []);
 
-        foreach ($items as $i) {
-            $d = new Deputy();
-            $d->id              = $i['id'];
-            $d->nome            = $i['nome'] ?? '';
-            $d->siglaPartido    = $i['siglaPartido'];
-            $d->siglaUf         = $i['siglaUf'];
-            $d->urlFoto         = $i['urlFoto'] ?? null;
-            $d->email           = $i['email'] ?? null;
-            $d->uri             = $i['uri'] ?? null;
-            $d->uriPartido      = $i['uriPartido'] ?? null;
-            $d->idLegislatura   = $i['idLegislatura'] ?? null;
+            foreach ($items as $i) {
+                // Log para debug
+                Log::info("Processando deputado", ['id' => $i['id'], 'nome' => $i['nome'] ?? 'sem nome']);
 
-            $repo->save($d);
+                // Verificar se o nome existe
+                if (empty($i['nome'])) {
+                    Log::warning("Deputado sem nome encontrado", ['data' => $i]);
+                    continue; // Pular este deputado
+                }
+
+                $d = new Deputy();
+                $d->id = $i['id'];
+
+                // Corrigir o mapeamento - usar as propriedades corretas
+                $d->name = $i['nome']; // Era 'nome', deve ser 'name'
+                $d->party_abbr = $i['siglaPartido']; // Era 'siglaPartido'
+                $d->state_abbr = $i['siglaUf']; // Era 'siglaUf'
+                $d->photo_url = $i['urlFoto'] ?? null; // Era 'urlFoto'
+                $d->email = $i['email'] ?? null;
+                $d->uri = $i['uri'] ?? null;
+                $d->party_uri = $i['uriPartido'] ?? null; // Era 'uriPartido'
+                $d->legislature_id = $i['idLegislatura'] ?? null; // Era 'idLegislatura'
+
+                $repo->save($d);
+            }
+        } catch (\Exception $e) {
+            Log::error("Erro no FetchDeputiesJob: " . $e->getMessage());
+            throw $e;
         }
     }
 }
